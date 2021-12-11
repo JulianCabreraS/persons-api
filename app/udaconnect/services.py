@@ -93,7 +93,7 @@ class PersonService:
         db.session.add(new_person)
         db.session.commit()
 
-        KAFKA_SERVER = 'localhost:9092'
+        KAFKA_SERVER = 'localhost:30007'
         producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
         kafka_data = json.dumps(new_person).encode()
         kafka_producer = producer
