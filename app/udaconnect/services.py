@@ -8,7 +8,6 @@ from app.udaconnect.schemas import LocationSchema
 from geoalchemy2.functions import ST_Point
 import json
 from sqlalchemy.sql import text
-from controllers import g
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("udaconnect-api")
@@ -97,7 +96,7 @@ class PersonService:
         KAFKA_SERVER = 'localhost:9092'
         producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
         kafka_data = json.dumps(new_person).encode()
-        kafka_producer = g.kafka_producer
+        kafka_producer = producer
         kafka_producer.send("persona", kafka_data)
 
         return new_person
