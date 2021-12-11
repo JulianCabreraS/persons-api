@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List
-
+from kafka import KafkaProducer
 from app import db
 from app.udaconnect.models import Connection, Location, Person
 from app.udaconnect.schemas import LocationSchema
@@ -93,6 +93,9 @@ class PersonService:
 
         db.session.add(new_person)
         db.session.commit()
+
+        KAFKA_SERVER = 'localhost:9092'
+        producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
         kafka_data = json.dumps(new_person).encode()
         kafka_producer = g.kafka_producer
         kafka_producer.send("persona", kafka_data)

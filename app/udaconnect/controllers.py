@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-from kafka import KafkaProducer
+
 from app.udaconnect.models import Person
 from app.udaconnect.schemas import (
     ConnectionSchema,
@@ -10,25 +10,12 @@ from app.udaconnect.services import ConnectionService, PersonService
 from flask import Flask, request
 from flask_accepts import accepts, responds
 from flask_restx import Namespace, Resource
-from flask import g
+
 DATE_FORMAT = "%Y-%m-%d"
 
 api = Namespace("UdaConnect", description="Connections via geolocation3.")  # noqa
 
 app = Flask(__name__)
-
-
-@app.before_request
-def before_request():
-    # Set up a Kafka producer
-    TOPIC_NAME = 'persona'
-    KAFKA_SERVER = 'localhost:9092'
-    producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
-    # Setting Kafka to g enables us to use this
-    # in other parts of our application
-    g.kafka_producer = producer
-
-
 
 
 @api.route("/persons")
