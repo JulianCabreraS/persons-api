@@ -95,7 +95,7 @@ class PersonService:
 
         KAFKA_SERVER = 'kafka:9092'
         producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
-        kafka_data = json.dumps(new_person).encode()
+        kafka_data = json.dumps(person).encode()
         kafka_producer = producer
         kafka_producer.send("persona", kafka_data)
 
