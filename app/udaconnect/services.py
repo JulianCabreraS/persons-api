@@ -101,8 +101,7 @@ class PersonService:
         kafka_producer.send(TOPIC_NAME, kafka_data)
 
         consumer = KafkaConsumer(TOPIC_NAME,
-                                 bootstrap_servers=KAFKA_SERVER,
-                                 enable_auto_commit=True)
+                                 bootstrap_servers=KAFKA_SERVER)
         for message in consumer:
             new_person = Person()
             new_person.first_name = message["first_name"]
