@@ -100,7 +100,7 @@ class PersonService:
         kafka_producer = producer
         kafka_producer.send(TOPIC_NAME, kafka_data)
 
-        consumer = KafkaConsumer(TOPIC_NAME, bootstrap_servers=KAFKA_SERVER)
+        consumer = KafkaConsumer(bootstrap_servers=KAFKA_SERVER)
         topic = TopicPartition('persona', 0)
         consumer.assign([topic])
         consumer.seek_to_end(topic)
