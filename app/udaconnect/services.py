@@ -106,7 +106,8 @@ class PersonService:
         consumer.seek_to_end(topic)
         lastOffset = consumer.position(topic)
         consumer.seek_to_beginning(topic)
-        for message in consumer:
+        for item in consumer:
+            message= item.value
             new_person = Person()
             new_person.first_name = message['first_name']
             new_person.last_name = message['last_name']
