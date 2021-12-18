@@ -116,7 +116,7 @@ class PersonService:
 
             db.session.add(new_person)
             db.session.commit()
-            if message.offset == lastOffset - 1:
+            if item.offset == lastOffset - 1:
                 break
         return response
 
