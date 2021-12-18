@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List
 from kafka import KafkaProducer
+from kafka import KafkaConsumer
 from app import db
 from app.udaconnect.models import Connection, Location, Person
 from app.udaconnect.schemas import LocationSchema
@@ -16,7 +17,7 @@ logger = logging.getLogger("udaconnect-api")
 class ConnectionService:
     @staticmethod
     def find_contacts(person_id: int, start_date: datetime, end_date: datetime, meters=5
-    ) -> List[Connection]:
+                      ) -> List[Connection]:
         """
         Finds all Person who have been within a given distance of a given Person within a date range.
 
@@ -60,11 +61,11 @@ class ConnectionService:
         result: List[Connection] = []
         for line in tuple(data):
             for (
-                exposed_person_id,
-                location_id,
-                exposed_lat,
-                exposed_long,
-                exposed_time,
+                    exposed_person_id,
+                    location_id,
+                    exposed_lat,
+                    exposed_long,
+                    exposed_time,
             ) in db.engine.execute(query, **line):
                 location = Location(
                     id=location_id,
@@ -85,19 +86,27 @@ class ConnectionService:
 class PersonService:
     @staticmethod
     def create(person: Dict) -> Person:
-        new_person = Person()
-        new_person.first_name = person["first_name"]
-        new_person.last_name = person["last_name"]
-        new_person.company_name = person["company_name"]
 
-        db.session.add(new_person)
-        db.session.commit()
 
         KAFKA_SERVER = 'kafka:9092'
+        TOPIC_NAME = 'persona'
         producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
         kafka_data = json.dumps(person).encode()
         kafka_producer = producer
-        kafka_producer.send("persona", kafka_data)
+        kafka_producer.send(TOPIC_NAME, kafka_data)
+
+        consumer = KafkaConsumer(TOPIC_NAME,
+                                 bootstrap_servers=KAFKA_SERVER,
+                                 enable_auto_commit=True,
+                                 group_id='my-group')
+        for message in consumer:
+            new_person = Person()
+            new_person.first_name = message["first_name"]
+            new_person.last_name = message["last_name"]
+            new_person.company_name = message["company_name"]
+
+            db.session.add(new_person)
+            db.session.commit()
 
         return new_person
 
