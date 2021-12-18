@@ -87,6 +87,11 @@ class PersonService:
     @staticmethod
     def create(person: Dict) -> Person:
 
+        response = Person()
+        response.first_name = person["first_name"]
+        response.last_name = person["last_name"]
+        response.company_name = person["company_name"]
+
 
         KAFKA_SERVER = 'kafka:9092'
         TOPIC_NAME = 'persona'
@@ -97,8 +102,7 @@ class PersonService:
 
         consumer = KafkaConsumer(TOPIC_NAME,
                                  bootstrap_servers=KAFKA_SERVER,
-                                 enable_auto_commit=True,
-                                 group_id='my-group')
+                                 enable_auto_commit=True)
         for message in consumer:
             new_person = Person()
             new_person.first_name = message["first_name"]
@@ -108,7 +112,7 @@ class PersonService:
             db.session.add(new_person)
             db.session.commit()
 
-        return new_person
+        return response
 
     @staticmethod
     def retrieve(person_id: int) -> Person:
