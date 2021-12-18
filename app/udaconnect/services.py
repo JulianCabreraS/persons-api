@@ -100,14 +100,15 @@ class PersonService:
         kafka_producer = producer
         kafka_producer.send(TOPIC_NAME, kafka_data)
 
-        consumer = KafkaConsumer(bootstrap_servers=KAFKA_SERVER)
+        consumer = KafkaConsumer(bootstrap_servers=KAFKA_SERVER,
+                                 value_deserializer=lambda m: json.loads(m.decode('utf-8')))
         topic = TopicPartition('persona', 0)
         consumer.assign([topic])
         consumer.seek_to_end(topic)
         lastOffset = consumer.position(topic)
         consumer.seek_to_beginning(topic)
         for item in consumer:
-            message= item.value
+            message = item.value
             new_person = Person()
             new_person.first_name = message['first_name']
             new_person.last_name = message['last_name']
