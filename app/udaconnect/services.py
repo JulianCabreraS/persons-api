@@ -108,9 +108,9 @@ class PersonService:
         consumer.seek_to_beginning(topic)
         for message in consumer:
             new_person = Person()
-            new_person.first_name = message["first_name"]
-            new_person.last_name = message["last_name"]
-            new_person.company_name = message["company_name"]
+            new_person.first_name = message['first_name']
+            new_person.last_name = message['last_name']
+            new_person.company_name = message['company_name']
 
             db.session.add(new_person)
             db.session.commit()
