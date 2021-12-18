@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List
-from kafka import KafkaProducer
-from kafka import KafkaConsumer
+from kafka import KafkaProducer, KafkaConsumer, TopicPartition
+
 from app import db
 from app.udaconnect.models import Connection, Location, Person
 from app.udaconnect.schemas import LocationSchema
@@ -100,8 +100,12 @@ class PersonService:
         kafka_producer = producer
         kafka_producer.send(TOPIC_NAME, kafka_data)
 
-        consumer = KafkaConsumer(TOPIC_NAME,
-                                 bootstrap_servers=KAFKA_SERVER)
+        consumer = KafkaConsumer(TOPIC_NAME, bootstrap_servers=KAFKA_SERVER)
+        topic = TopicPartition('persona', 0)
+        consumer.assign([topic])
+        consumer.seek_to_end(topic)
+        lastOffset = consumer.position(topic)
+        consumer.seek_to_beginning(topic)
         for message in consumer:
             new_person = Person()
             new_person.first_name = message["first_name"]
@@ -110,7 +114,8 @@ class PersonService:
 
             db.session.add(new_person)
             db.session.commit()
-
+            if message.offset == lastOffset - 1:
+                break
         return response
 
     @staticmethod
